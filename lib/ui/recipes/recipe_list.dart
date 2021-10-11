@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/custom_dropdown.dart';
 import '../colors.dart';
+import '../widgets/custom_dropdown.dart';
 
 class RecipeList extends StatefulWidget {
   const RecipeList({Key? key}) : super(key: key);
@@ -26,31 +26,36 @@ class _RecipeListState extends State<RecipeList> {
   bool loading = false;
   bool inErrorState = false;
   List<String> previousSearches = <String>[];
+  // TODO: Add _currentRecipes1
 
   @override
   void initState() {
     super.initState();
+    // TODO: Call loadRecipes()
     getPreviousSearches();
     searchTextController = TextEditingController(text: '');
-    _scrollController.addListener(() {
-      final triggerFetchMoreSize =
-          0.7 * _scrollController.position.maxScrollExtent;
+    _scrollController
+      ..addListener(() {
+        final triggerFetchMoreSize =
+            0.7 * _scrollController.position.maxScrollExtent;
 
-      if (_scrollController.position.pixels > triggerFetchMoreSize) {
-        if (hasMore &&
-            currentEndPosition < currentCount &&
-            !loading &&
-            !inErrorState) {
-          setState(() {
-            loading = true;
-            currentStartPosition = currentEndPosition;
-            currentEndPosition =
-                min(currentStartPosition + pageCount, currentCount);
-          });
+        if (_scrollController.position.pixels > triggerFetchMoreSize) {
+          if (hasMore &&
+              currentEndPosition < currentCount &&
+              !loading &&
+              !inErrorState) {
+            setState(() {
+              loading = true;
+              currentStartPosition = currentEndPosition;
+              currentEndPosition =
+                  min(currentStartPosition + pageCount, currentCount);
+            });
+          }
         }
-      }
-    });
+      });
   }
+
+  // TODO: Add loadRecipes
 
   @override
   void dispose() {
@@ -67,7 +72,6 @@ class _RecipeListState extends State<RecipeList> {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey(prefSearchKey)) {
       final searches = prefs.getStringList(prefSearchKey);
-
       if (searches != null) {
         previousSearches = searches;
       } else {
@@ -101,7 +105,6 @@ class _RecipeListState extends State<RecipeList> {
         padding: const EdgeInsets.all(4.0),
         child: Row(
           children: [
-            // Replace
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
@@ -119,22 +122,19 @@ class _RecipeListState extends State<RecipeList> {
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Search',
-                      ),
-                      autofocus: false,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (value) {
-                        if (!previousSearches.contains(value)) {
-                          previousSearches.add(value);
-                          savePreviousSearches();
-                        }
-                      },
-                      controller: searchTextController,
-                    ),
-                  ),
+                      child: TextField(
+                    decoration: const InputDecoration(
+                        border: InputBorder.none, hintText: 'Search'),
+                    autofocus: false,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (value) {
+                      if (!previousSearches.contains(value)) {
+                        previousSearches.add(value);
+                        savePreviousSearches();
+                      }
+                    },
+                    controller: searchTextController,
+                  )),
                   PopupMenuButton<String>(
                     icon: const Icon(
                       Icons.arrow_drop_down,
@@ -147,12 +147,14 @@ class _RecipeListState extends State<RecipeList> {
                     itemBuilder: (BuildContext context) {
                       return previousSearches
                           .map<CustomDropdownMenuItem<String>>((String value) {
-                        return CustomDropdownMenuItem(
-                          value: value,
+                        return CustomDropdownMenuItem<String>(
                           text: value,
+                          value: value,
                           callback: () {
-                            previousSearches.remove(value);
-                            Navigator.pop(context);
+                            setState(() {
+                              previousSearches.remove(value);
+                              Navigator.pop(context);
+                            });
                           },
                         );
                       }).toList();
@@ -175,7 +177,6 @@ class _RecipeListState extends State<RecipeList> {
       currentStartPosition = 0;
       hasMore = true;
       value = value.trim();
-
       if (!previousSearches.contains(value)) {
         previousSearches.add(value);
         savePreviousSearches();
@@ -183,6 +184,7 @@ class _RecipeListState extends State<RecipeList> {
     });
   }
 
+  // TODO: Replace method
   Widget _buildRecipeLoader(BuildContext context) {
     if (searchTextController.text.length < 3) {
       return Container();
@@ -193,3 +195,5 @@ class _RecipeListState extends State<RecipeList> {
     );
   }
 }
+
+// TODO: Add _buildRecipeCard
